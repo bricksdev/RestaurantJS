@@ -4,5 +4,5 @@
 
 simple RestaurantJS power by express4 and jade template
 
-Start the server commmand:  NODE_ENV=production node cluster.js
+Start the server commmand:  node cluster.js
 
