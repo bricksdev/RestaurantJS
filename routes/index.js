@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var router = express.Router();
 var crypto = require('crypto');
+var util = require('util');
 var User = require('../models/user.js');
 var Discount = require("../models/discount.js");
 /* GET home page. */
@@ -55,6 +56,7 @@ router.post("/login", function (req, res) {
             return res.send({error: '用户名或密码错误'});
         }
         req.session.user = user;
+        console.log(util.inspect(req.session));
 //        req.flash('success', req.session.user.name + '登录成功');
         res.send({success: true, message: req.session.user.name + '登录成功'});
     });
@@ -106,23 +108,25 @@ function checkNotLogin(req, res, next) {
     next();
 }
 function checkLogin(req, res, next) {
+    
     if (!req.session.user) {
         return res.send({error:'用户尚未登录'});
     }
     next();
 }
 
-router.post("/post", checkLogin);
-router.post("/post", function (req, res) {
+router.post("/postdiscount", checkLogin);
+router.post("/postdiscount", function (req, res) {
     var currentUser = req.session.user;
-    var post = new Discount(currentUser.name, req.body.post);
-    post.save(function (err) {
+    
+    var name = req.body.imagefile0;
+    console.log(name);
+    var discount = new Discount(currentUser.name, req.body.discount, req.body.name, req.body.details ,name ,req.body.stoptime ,req.body.discount);
+    discount.save(function (err) {
         if (err) {
-            req.flash('error', err);
-            return res.redirect('/blog');
+            return res.send({error:err});
         }
-        req.flash('success', '发表成功');
-        res.redirect('/u/' + currentUser.name);
+        res.send({success:'发布折扣成功'});
     });
 });
 
