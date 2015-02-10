@@ -25,7 +25,7 @@ module.exports = Discount;
 
 Discount.prototype.save = function save(callback) {
 
-    var discount = {
+    var Discount = {
         user: this.user,
         name: this.name,
         details: this.details,
@@ -45,9 +45,9 @@ Discount.prototype.save = function save(callback) {
                 return callback(err);
             }
 
-            // collection.ensureIndex('user');
-
-            collection.insert(discount, {safe: true}, function (err, discount) {
+             collection.ensureIndex('user');
+             collection.ensureIndex('discount');
+            collection.insert(Discount, {safe: true}, function (err, discount) {
                 mongodb.close();
                 callback(err, discount);
             });

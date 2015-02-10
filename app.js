@@ -37,7 +37,8 @@ app.use(session({
   secret: settings.cookieSecret,
   store: new MongoStore({
       db: settings.db
-  })
+  }),
+  originalMaxAge:30
 }));
 
 //设置跨域访问
@@ -55,7 +56,7 @@ app.use(function(req, res, next){
   res.locals.post = req.session.post;
   var error = req.flash('error');
   res.locals.error = error.length ? error : null;
-  var ok = error.length ? false : true;
+
 // 
   var success = req.flash('success');
   res.locals.message = success.length ? success : null;
@@ -91,7 +92,7 @@ if (app.get('env') === 'development') {
         errorLogfile.write(meta +err.stack + '\n');
         next();
         res.status(err.status || 500);
-        rres.render('error', {
+        res.render('error', {
             message: err.message,
             error: err
         });
