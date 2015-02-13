@@ -7,12 +7,13 @@ var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var session    = require('express-session');
+var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 var settings = require('./settings');
 var flash = require('connect-flash');
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var util = require('util');
 
 var app = express();
 
@@ -21,7 +22,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 app.use(favicon());
-//app.use(logger('dev'));
+app.use(logger('dev'));
 app.use(logger({stream: accessLogfile}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
@@ -34,49 +35,51 @@ app.use(flash());
 
 //提供session支持
 app.use(session({
-  secret: settings.cookieSecret,
-  store: new MongoStore({
-      db: settings.db
-  }),
-  originalMaxAge:30
+    secret: settings.cookieSecret,
+    store: new MongoStore({
+        db: settings.db
+    }),
+    originalMaxAge: new Date(Date.now() + 3600000),
+    cookie: {path: "/"}
 }));
 
 //设置跨域访问
-app.all('*', function(req, res, next) {
+app.all('*', function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
+    res.header('Access-Control-Allow-Credentials', true);
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-    res.header("X-Powered-By",' 3.2.1');
+    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+    res.header("X-Powered-By", ' 3.2.1');
     res.header("Content-Type", "application/json;charset=utf-8");
+    res.header("P3P","CP=CAO PSA OUR");
     next();
 });
-app.use(function(req, res, next){
-  console.log("app.usr local");
-  res.locals.user = req.session.user;
-  res.locals.post = req.session.post;
-  var error = req.flash('error');
-  res.locals.error = error.length ? error : null;
-
-// 
-  var success = req.flash('success');
-  res.locals.message = success.length ? success : null;
+app.use(function (req, res, next) {
+    console.log("app.usr local");
+//    res.locals.user = req.session.user;
+//    res.locals.post = req.session.post;
+//    var error = req.flash('error');
+//    res.locals.error = error.length ? error : null;
+//
+//// 
+//    var success = req.flash('success');
+//    res.locals.message = success.length ? success : null;
 //  res.send({success:ok,message:res.locals.message,error:res.locals.error});
-  next();
-  
+    next();
 });
 
 
 app.use('/', routes);
 if (!module.parent) {
-  app.listen(8099);
-  //console.log("Express服务器启动, 开始监听 %d 端口, 以 %s 模式运行.", app.address().port, app.settings.env);
+    app.listen(8099);
+    //console.log("Express服务器启动, 开始监听 %d 端口, 以 %s 模式运行.", app.address().port, app.settings.env);
 }
 
 app.use('/users', users);
 
 
 /// catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
@@ -87,9 +90,9 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
-        var meta = '[' + new Date() + ']' +req.url + '\n';
-        errorLogfile.write(meta +err.stack + '\n');
+    app.use(function (err, req, res, next) {
+        var meta = '[' + new Date() + ']' + req.url + '\n';
+        errorLogfile.write(meta + err.stack + '\n');
         next();
         res.status(err.status || 500);
         res.render('error', {
@@ -101,15 +104,15 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-    var meta = '[' + new Date() + ']' +req.url + '\n';
-    errorLogfile.write(meta +err.stack + '\n');
+app.use(function (err, req, res, next) {
+    var meta = '[' + new Date() + ']' + req.url + '\n';
+    errorLogfile.write(meta + err.stack + '\n');
     next();
     res.status(err.status || 500);
     res.render('error', {
-            message: err.message,
-            error: err
-        });
+        message: err.message,
+        error: err
+    });
 });
 
 

@@ -3,6 +3,7 @@ var app = express();
 var router = express.Router();
 var crypto = require('crypto');
 var util = require('util');
+var formidable = require("formidable");
 var User = require('../models/user.js');
 var Discount = require("../models/discount.js");
 /* GET home page. */
@@ -41,7 +42,7 @@ router.post("/logout", function (req, res) {
     res.send({success: '退出成功'});
 });
 
-router.post("/login",checkNotLogin);
+router.post("/login", checkNotLogin);
 router.post("/login", function (req, res) {
 
     var md5 = crypto.createHash('md5');
@@ -56,14 +57,13 @@ router.post("/login", function (req, res) {
             return res.send({error: '用户名或密码错误'});
         }
         req.session.user = user;
-        console.log(util.inspect(req.session));
 //        req.flash('success', req.session.user.name + '登录成功');
         res.send({success: true, message: req.session.user.name + '登录成功'});
     });
 });
-router.post("/reg",checkNotLogin);
+router.post("/reg", checkNotLogin);
 router.post("/reg", function (req, res) {
-    
+
 //    console.log('password:' + req.body['password']);
 //    console.log('password-repeat:' + req.body['repassword']);
     if (req.body['repassword'] !== req.body['password']) {
@@ -75,12 +75,12 @@ router.post("/reg", function (req, res) {
     var newUser = new User({
         name: req.body.username,
         password: password,
-        nicky:req.body.nicky
+        nicky: req.body.nicky
     });
-    
+
     //检查用户名是否已经存在
     User.get(newUser.name, function (err, user) {
-        
+
         if (user) {
             err = '用户已经存在.';
         }
@@ -103,14 +103,14 @@ router.post("/reg", function (req, res) {
 
 function checkNotLogin(req, res, next) {
     if (req.session.user) {
-        return res.send({error:'用户已经登录'});
+        return res.send({error: '用户已经登录'});
     }
     next();
 }
 function checkLogin(req, res, next) {
-    
+
     if (!req.session.user) {
-        return res.send({error:'用户尚未登录'});
+        return res.send({error: '用户尚未登录'});
     }
     next();
 }
@@ -118,15 +118,35 @@ function checkLogin(req, res, next) {
 router.post("/postdiscount", checkLogin);
 router.post("/postdiscount", function (req, res) {
     var currentUser = req.session.user;
-    
+    var form = new formidable.IncomingForm();
+
+    form.parse(req, function (err, fields, files) {
+        console.log('in if condition' + sys.inspect({fields: fields, files: files}));
+//        fs.writeFile("upload/" + files.upload.name, files.upload, 'utf8', function (err) {
+//            if (err)
+//                throw err;
+//            console.log('It\'s saved!');
+//            client.putFile("upload/" + files.upload.name, files.upload.name, function (err, res) {
+//                if (err)
+//                    throw err;
+//                if (200 == res.statusCode) {
+//                    console.log('saved to s3');
+//
+//                    httpres.writeHead(200, {'content-type': 'text/plain'});
+//                    httpres.write('received 1upload:\n\n');
+//                    httpres.end();
+//                }
+//            });
+//        });
+    });
     var name = req.body.imagefile0;
     console.log(name);
-    var discount = new Discount(currentUser.name, req.body.discount, req.body.name, req.body.details ,name ,req.body.stoptime ,req.body.discount);
+    var discount = new Discount(currentUser.name, req.body.discount, req.body.name, req.body.details, name, req.body.stoptime, req.body.discount);
     discount.save(function (err) {
         if (err) {
-            return res.send({error:err});
+            return res.send({error: err});
         }
-        res.send({success:'发布折扣成功'});
+        res.send({success: '发布折扣成功'});
     });
 });
 
