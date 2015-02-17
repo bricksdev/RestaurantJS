@@ -11,6 +11,7 @@ var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 var settings = require('./settings');
 var flash = require('connect-flash');
+var csrf = require('./csrf');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var util = require('util');
@@ -20,6 +21,26 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+//设置跨域访问
+var allowCrossDomain = function (req, res, next) {
+    // Added other domains you want the server to give access to
+    // WARNING - Be careful with what origins you give access to
+    var allowedHost = [
+        'http://szldkj.net',
+        'http://localhost'
+    ];
+    console.log(req.headers.origin);
+    if (allowedHost.indexOf(req.headers.origin) !== -1) {
+        res.header('Access-Control-Allow-Credentials', true);
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+        next();
+    } else {
+        res.send({auth: false});
+    }
+    ;
+};
 
 app.use(favicon());
 app.use(logger('dev'));
@@ -39,32 +60,14 @@ app.use(session({
     store: new MongoStore({
         db: settings.db
     }),
-    originalMaxAge: new Date(Date.now() + 3600000),
+    maxAge: new Date(Date.now() + 3600000),
     cookie: {path: "/"}
 }));
+app.use(allowCrossDomain);
+app.use(csrf.check);
 
-//设置跨域访问
-app.all('*', function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header('Access-Control-Allow-Credentials', true);
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-    res.header("X-Powered-By", ' 3.2.1');
-    res.header("Content-Type", "application/json;charset=utf-8");
-    res.header("P3P","CP=CAO PSA OUR");
-    next();
-});
 app.use(function (req, res, next) {
-    console.log("app.usr local");
-//    res.locals.user = req.session.user;
-//    res.locals.post = req.session.post;
-//    var error = req.flash('error');
-//    res.locals.error = error.length ? error : null;
-//
-//// 
-//    var success = req.flash('success');
-//    res.locals.message = success.length ? success : null;
-//  res.send({success:ok,message:res.locals.message,error:res.locals.error});
+//    console.log("app.usr local");
     next();
 });
 

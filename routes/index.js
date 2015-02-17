@@ -1,5 +1,4 @@
 var express = require('express');
-var app = express();
 var router = express.Router();
 var crypto = require('crypto');
 var util = require('util');
@@ -19,7 +18,7 @@ router.post('/', function (req, res) {
         });
     });
 });
-router.post('/json', function (req, res) {
+router.get('/json', function (req, res) {
         var  jsonArray= [
 
             { "category": "animals", "type": "Pets",picture:"icon.png" },
