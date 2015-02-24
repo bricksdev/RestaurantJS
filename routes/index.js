@@ -4,7 +4,7 @@ var crypto = require('crypto');
 var util = require('util');
 var formidable = require("formidable");
 var User = require('../models/user.js');
-var Discount = require("../models/discount.js");
+var Discount = require("../models/product.js");
 /* GET home page. */
 
 router.post('/', function (req, res) {

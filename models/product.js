@@ -1,6 +1,7 @@
 var mongodb = require('../dborm/db.js');
+var gridfsStore = require('../dborm/gridfs.js');
 
-function Discount(username, discount, name, details, picture, stoptime, time) {
+function Product(username, discount, name, details, picture, stoptime, time) {
     this.user = username;
     this.discount = discount;
     this.name = name;
@@ -21,11 +22,11 @@ function Discount(username, discount, name, details, picture, stoptime, time) {
 }
 ;
 
-module.exports = Discount;
+module.exports = Product;
 
-Discount.prototype.save = function save(callback) {
+Product.prototype.save = function save(callback) {
 
-    var Discount = {
+    var Product = {
         user: this.user,
         name: this.name,
         details: this.details,
@@ -35,32 +36,33 @@ Discount.prototype.save = function save(callback) {
         time: this.time
     };
     mongodb.open(function (err, db) {
+        
         if (err) {
             return callback(err);
         }
-
-        db.collection('discounts', function (err, collection) {
+        
+        db.collection('products', function (err, collection) {
             if (err) {
                 mongodb.close();
                 return callback(err);
             }
-
-             collection.ensureIndex('user');
-             collection.ensureIndex('discount');
-            collection.insert(Discount, {safe: true}, function (err, discount) {
+//            console.log(collection);
+//             collection.ensureIndex({'user':1});
+//             collection.ensureIndex({'discount':2});
+            collection.insert(Product, {safe: true}, function (err, discount) {
                 mongodb.close();
                 callback(err, discount);
             });
         });
     });
 };
-Discount.get = function get(username, callback) {
+Product.get = function get(username, callback) {
     mongodb.open(function (err, db) {
         if (err) {
             return callback(err);
         }
 
-        db.collection('discounts', function (err, collection) {
+        db.collection('products', function (err, collection) {
             if (err) {
                 mongodb.close();
                 return callback(err);
@@ -75,13 +77,26 @@ Discount.get = function get(username, callback) {
                     callback(err, null);
                 }
 
-                var discounts = [];
+                var products = [];
                 docs.forEach(function (doc, index) {
-                    var discount = new Discount(doc.user, doc.discount, doc.time);
-                    discounts.push(discount);
+                    var product = new Product(doc.user, doc.name, doc.details, doc.picture, doc.discount, doc.stoptime);
+                    products.push(product);
                 });
-                callback(null, discounts);
+                callback(null, products);
             });
         });
     });
+};
+
+Product.saveFile = function(file, filename){
+  gridfsStore.writeFile(file, filename);
+  
+};
+
+Product.readFile=function(filename, callback){
+    gridfsStore.readFile(filename,callback);
+};
+
+Product.existsFile=function(filename, callback){
+    gridfsStore.existsFile(filename,callback);
 };

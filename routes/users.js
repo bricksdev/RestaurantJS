@@ -21,7 +21,7 @@ router.post('/login', function (req, res) {
     // Here you would pull down your user credentials and match them up
     // to the request
 
-
+    console.log(req.body);
     var md5 = crypto.createHash('md5');
     var password = md5.update(req.body.password).digest('base64');
 

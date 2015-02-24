@@ -14,6 +14,7 @@ var flash = require('connect-flash');
 var csrf = require('./csrf');
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var productRoutes = require('./routes/product');
 var util = require('util');
 
 var app = express();
@@ -67,7 +68,7 @@ app.use(allowCrossDomain);
 app.use(csrf.check);
 
 app.use(function (req, res, next) {
-//    console.log("app.usr local");
+    console.log(util.inspect(req.body));
     next();
 });
 
@@ -79,7 +80,7 @@ if (!module.parent) {
 }
 
 app.use('/users', users);
-
+app.use('/product', productRoutes);
 
 /// catch 404 and forward to error handler
 app.use(function (req, res, next) {
