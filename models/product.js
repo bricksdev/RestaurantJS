@@ -23,6 +23,14 @@ function Product(username, discount, name, details, picture, stoptime, time) {
 ;
 
 module.exports = Product;
+// 添加clone方法
+Product.clone = function(cloneobj){
+  var product = new Product();
+  for(var key in cloneobj){
+      product[key] = cloneobj[key];
+  }
+    return product;
+};
 
 Product.prototype.save = function save(callback) {
 
@@ -79,7 +87,7 @@ Product.get = function get(username, callback) {
 
                 var products = [];
                 docs.forEach(function (doc, index) {
-                    var product = new Product(doc.user, doc.name, doc.details, doc.picture, doc.discount, doc.stoptime);
+                    var product = Product.clone(doc);
                     products.push(product);
                 });
                 callback(null, products);

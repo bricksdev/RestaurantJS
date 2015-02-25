@@ -28,19 +28,26 @@ var allowCrossDomain = function (req, res, next) {
     // WARNING - Be careful with what origins you give access to
     var allowedHost = [
         'http://szldkj.net',
-        'http://localhost'
+        'http://localhost',
+        "file://"
     ];
-    console.log(req.headers.origin);
-    if (allowedHost.indexOf(req.headers.origin) !== -1) {
-        res.header('Access-Control-Allow-Credentials', true);
-        res.header('Access-Control-Allow-Origin', req.headers.origin);
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-        next();
+    if (req.headers.origin) {
+        if (allowedHost.indexOf(req.headers.origin) !== -1) {
+            res.header('Access-Control-Allow-Credentials', true);
+            res.header('Access-Control-Allow-Origin', req.headers.origin);
+            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+            res.header('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+            next();
+        } else {
+            res.send({auth: false});
+        }
     } else {
-        res.send({auth: false});
+        if (req.originalUrl.indexOf("/images") !== -1) {
+            //
+            next();
+        }
     }
-    ;
+
 };
 
 app.use(favicon());
@@ -68,7 +75,7 @@ app.use(allowCrossDomain);
 app.use(csrf.check);
 
 app.use(function (req, res, next) {
-    console.log(util.inspect(req.body));
+
     next();
 });
 
