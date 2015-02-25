@@ -105,6 +105,7 @@ router.get('/images/:id', function (req, res) {
     console.log(filename);
     if (filename) {
         Product.readFile(filename, function (err, data) {
+            console.log(err, data);
             res.writeHead(200, {"Content-Type": "image/png"});
 //            res.encoding('binary');
             if (err) {

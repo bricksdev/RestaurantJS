@@ -15,6 +15,7 @@ var newGridStore = function (file, filename, callback) {
                 throw err;
             }
             if (exists) {
+                db.close();
                 return;
             }
             var gridStore = new GridfsStore(db, filename, "w", {
@@ -60,23 +61,29 @@ var newGridStore = function (file, filename, callback) {
 
 var readGridStore = function (filename, callback) {
     db.open(function (err, db) {
+        console.error("open db connection ", err);
         if (err) {
             throw err;
         }
         GridfsStore.exist(db, filename, function (err, exists) {
+            console.error(err, exists);
             if (err) {
 
                 throw err;
             }
+
             // 文件存在
-            if (exists) {
+            if (!exists) {
+                db.close();
+                return;
+            }
 //                var gridStore = new GridfsStore(db, filename, "r", {
 //                    metadata: {
 //                        author: "szldkj.net"
 //                    },
 //                    chunk_size: 1024 * 2
 //                });
-                GridfsStore.read(db, filename, function(err, fileData) {
+            GridfsStore.read(db, filename, function (err, fileData) {
 //                gridStore.open(function (err, gridStore) {//打开
 //
 //                    if (err) {
@@ -89,18 +96,17 @@ var readGridStore = function (filename, callback) {
 //                            callback(err);
 //                        }
 //                    console.log(data);
-                        callback(err, fileData);
-                        db.close();
+                callback(err, fileData);
+                db.close();
 //                        gridStore.close(function (err, result) {
 //                            
 //                            db.close();
 //                            
 //                        });
 
-                    });
+            });
 //                });
 
-            }
         });
 
 
