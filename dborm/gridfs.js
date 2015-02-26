@@ -61,14 +61,12 @@ var newGridStore = function (file, filename, callback) {
 
 var readGridStore = function (filename, callback) {
     db.open(function (err, db) {
-        console.error("open db connection ", err);
         if (err) {
             throw err;
         }
         GridfsStore.exist(db, filename, function (err, exists) {
-            console.error(err, exists);
             if (err) {
-
+                
                 throw err;
             }
 
@@ -96,8 +94,9 @@ var readGridStore = function (filename, callback) {
 //                            callback(err);
 //                        }
 //                    console.log(data);
-                callback(err, fileData);
                 db.close();
+                callback(err, fileData);
+
 //                        gridStore.close(function (err, result) {
 //                            
 //                            db.close();
@@ -114,18 +113,20 @@ var readGridStore = function (filename, callback) {
 };
 
 var existsFile = function (filename, callback) {
-    console.log(filename, " exists check");
-
-    GridfsStore.exist(db, filename, function (err, exists) {
-        console.log(filename, err, exists);
+    db.open(function (err, db) {
         if (err) {
-            callback(err);
+            throw err;
         }
+        GridfsStore.exist(db, filename, function (err, exists) {
+            db.close();
+            if (err) {
+                callback(err);
+            }
 
-        callback(exists, exists);
+            callback(exists, exists);
+        });
+
     });
-
-
 };
 module.exports = {
     writeFile: newGridStore,
