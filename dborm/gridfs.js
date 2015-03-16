@@ -32,13 +32,13 @@ var newGridStore = function (file, filename, callback) {
             });
 
             gridStore.open(function (err, gridStore) {//打开
-                console.log(err, gridStore);
+//                console.log(err, gridStore);
                 if (err) {
 
                     throw err;
                 }
                 gridStore.writeFile(file, function (err, gridStore) {
-                    console.log(file);
+//                    console.log(file);
                     if (err) {
 
                         throw err;
@@ -50,7 +50,7 @@ var newGridStore = function (file, filename, callback) {
                                 callback(err);
                             }
                         }
-                        console.log("file upload!", result);
+//                        console.log("file upload!", result);
                         if (callback) {
                             callback(err, result);
                         }
