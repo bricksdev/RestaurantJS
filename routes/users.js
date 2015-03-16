@@ -21,15 +21,15 @@ router.post('/login', function (req, res) {
     // Here you would pull down your user credentials and match them up
     // to the request
 
-    console.log(req.body);
+//    console.log(req.body);
     var md5 = crypto.createHash('md5');
     var password = md5.update(req.body.password).digest('base64');
-
-    User.get(req.body.username, function (err, user) {
+    
+    User.findOne({name:req.body.username}, function (err, user) {
         if (!user) {
             return res.send({error: '用户不存在'});
         }
-
+        
         if (user.password !== password) {
             return res.send({error: '用户名或密码错误'});
         }
@@ -71,8 +71,8 @@ router.post("/reg", function (req, res) {
     });
 
     //检查用户名是否已经存在
-    User.get(newUser.name, function (err, user) {
-
+    User.findOne({name:newUser.name}, function (err, user) {
+        
         if (user) {
             err = '用户已经存在.';
         }

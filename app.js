@@ -65,11 +65,12 @@ app.use(flash());
 //提供session支持
 app.use(session({
     secret: settings.cookieSecret,
+    // 此处将session保存到mongodb中
     store: new MongoStore({
         db: settings.db
     }),
-    maxAge: new Date(Date.now() + 3600000),
-    cookie: {path: "/"}
+//    maxAge: new Date(Date.now() + 3600000),
+    cookie: {path: "/",httpOnly:true}
 }));
 app.use(allowCrossDomain);
 app.use(csrf.check);
@@ -106,7 +107,7 @@ if (app.get('env') === 'development') {
         errorLogfile.write(meta + err.stack + '\n');
         next();
         res.status(err.status || 500);
-        res.render('error', {
+        res.send( {success:false,
             message: err.message,
             error: err
         });
@@ -120,7 +121,7 @@ app.use(function (err, req, res, next) {
     errorLogfile.write(meta + err.stack + '\n');
     next();
     res.status(err.status || 500);
-    res.render('error', {
+    res.send( {success:false,
         message: err.message,
         error: err
     });

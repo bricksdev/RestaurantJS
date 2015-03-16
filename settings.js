@@ -1,5 +1,5 @@
 module.exports = {
-cookieSecret: 'Restaurant$20150126',
-db: 'restaurant-db',
+cookieSecret: 'Restaurant$20150326',
+db: 'rest-mongodb',
 host: 'localhost'
 };

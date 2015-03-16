@@ -16,10 +16,9 @@ var checkToken = function (req, res, next) {
         return next();
     }
     var val = defaultValue(req);
-    if (val != token) {
-        return next(function () {
-            res.send({auth: false,message:"用户验证失败"});
-        });
+//    console.log(val,token);
+    if (!val || val !== token) {
+        return res.send({auth: false,message:"用户验证失败"});
     }
     next();
 };

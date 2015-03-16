@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "nodejs ./bin/www"
   },
   "dependencies": {
     "express": "~4.2.0",
@@ -19,6 +19,13 @@
     "connect-flash": "*",
     "express-partials": "*",
     "formidable":"*",
+    "mongoose":">=3.0.0",
     "bson":">=0.2.0"
+  },
+  "devDependencies": {
+    "supertest": "0.13.0",
+    "should": "4.0.4",
+    "mocha": ">=2.0.0",
+    "nodemon": "1.2.1"
   }
 }

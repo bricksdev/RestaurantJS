@@ -1,21 +1,27 @@
 var settings = require('../settings'),
-        mongodb = require("mongodb"),
-        Db = mongodb.Db,
-        Server = mongodb.Server,
-        Connection = mongodb.Connection,
-        GridfsStore = mongodb.GridStore;
-var db = new Db(settings.db + "-files", new Server(settings.host, Connection.DEFAULT_PORT, {}), {safe: true});
+        mongoose = require('mongoose'),
+        GridfsStore = mongoose.mongo.GridStore;
+
+var mongooseDb = mongoose.createConnection('mongodb://'+settings.host+"/"+settings.db + "-files",{safe: true});
+mongooseDb.on('error', console.error.bind(console, 'connection error:'));
+mongooseDb.once('open', function (callback) {
+  console.log("mongoose db is opening.");
+});
+mongooseDb.once('close', function (callback) {
+  console.log("mongoose db is closed.");
+});
+var db = mongooseDb.db;
 var newGridStore = function (file, filename, callback) {
-    db.open(function (err, db) {
-        if (err) {
-            throw err;
-        }
+//    db.open(function (err, db) {
+//        if (err) {
+//            throw err;
+//        }
         GridfsStore.exist(db, filename, function (err, exists) {
             if (err) {
                 throw err;
             }
             if (exists) {
-                db.close();
+//                db.close();
                 return;
             }
             var gridStore = new GridfsStore(db, filename, "w", {
@@ -38,7 +44,7 @@ var newGridStore = function (file, filename, callback) {
                         throw err;
                     }
                     gridStore.close(function (err, result) {
-                        db.close();
+//                        db.close();
                         if (err) {
                             if (callback) {
                                 callback(err);
@@ -55,15 +61,15 @@ var newGridStore = function (file, filename, callback) {
 
 
 
-    });
+//    });
 
 };
 
 var readGridStore = function (filename, callback) {
-    db.open(function (err, db) {
-        if (err) {
-            throw err;
-        }
+//    db.open(function (err, db) {
+//        if (err) {
+//            throw err;
+//        }
         GridfsStore.exist(db, filename, function (err, exists) {
             if (err) {
                 
@@ -72,53 +78,28 @@ var readGridStore = function (filename, callback) {
 
             // 文件存在
             if (!exists) {
-                db.close();
+//                db.close();
                 return;
             }
-//                var gridStore = new GridfsStore(db, filename, "r", {
-//                    metadata: {
-//                        author: "szldkj.net"
-//                    },
-//                    chunk_size: 1024 * 2
-//                });
             GridfsStore.read(db, filename, function (err, fileData) {
-//                gridStore.open(function (err, gridStore) {//打开
-//
-//                    if (err) {
-//
-//                        throw err;
-//                    }
-//                    gridStore.read(function (err, data) {
-//
-//                        if (err) {
-//                            callback(err);
-//                        }
-//                    console.log(data);
-                db.close();
+//                db.close();
                 callback(err, fileData);
 
-//                        gridStore.close(function (err, result) {
-//                            
-//                            db.close();
-//                            
-//                        });
-
             });
-//                });
 
         });
 
 
-    });
+//    });
 };
 
 var existsFile = function (filename, callback) {
-    db.open(function (err, db) {
-        if (err) {
-            throw err;
-        }
+//    db.open(function (err, db) {
+//        if (err) {
+//            throw err;
+//        }
         GridfsStore.exist(db, filename, function (err, exists) {
-            db.close();
+//            db.close();
             if (err) {
                 callback(err);
             }
@@ -126,7 +107,7 @@ var existsFile = function (filename, callback) {
             callback(exists, exists);
         });
 
-    });
+//    });
 };
 module.exports = {
     writeFile: newGridStore,

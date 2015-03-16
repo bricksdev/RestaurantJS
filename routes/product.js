@@ -5,6 +5,7 @@ var formidable = require("formidable");
 var User = require('../models/user.js');
 var fs = require("fs");
 var Product = require("../models/product.js");
+var gridfsStore = require("../models/files.js");
 var router = express.Router();
 /* GET home page. */
 router.post("/publish", function (req, res) {
@@ -25,7 +26,7 @@ router.post("/publish", function (req, res) {
 
                     var picturename = user + "_" + file.name;
 
-                    Product.saveFile(file.path, picturename);
+                    gridfsStore.saveFile(file.path, picturename);
 
                     pictures.push(picturename);
                 }
@@ -34,23 +35,11 @@ router.post("/publish", function (req, res) {
 
                 var picturename = user + "_" + file.name;
 
-                Product.saveFile(file.path, picturename);
+                gridfsStore.saveFile(file.path, picturename);
 
                 pictures.push(picturename);
             }
 
-//            if (util.isArray(tfiles)) {
-//                // save bytes file
-//                for (var idx = 0; idx < tfiles.length; idx++) {
-//                    var file = tfiles[idx];
-//                    var datas = fs.readFileSync(file.path);
-//                    pictures.push(datas);
-//                }
-//            } else {
-//                var file = tfiles;
-//                var datas = fs.readFileSync(file.path);
-//                pictures.push(datas);
-//            }
             return pictures;
         };
         var pro = {
@@ -61,8 +50,7 @@ router.post("/publish", function (req, res) {
             discount: fields.discount,
             stoptime: fields.stoptime
         };
-        var product = Product.clone(pro);
-        console.log(product);
+        var product = new Product(pro);
         product.save(function (err, model) {
 
             if (err) {
@@ -77,35 +65,21 @@ router.post("/publish", function (req, res) {
 
 });
 router.get("/products", function (req, res) {
-    Product.get(req.session.username, function (err, products) {
+    Product.find({user:req.session.username}, function (err, products) {
         if (err) {
             return res.send({success: false, message: util.inspect(err)});
         }
 
-        // 获取每一个数据并读取文件流
-//        for (var index = 0; index < products.length; index++) {
-//
-//            if (util.isArray(products[index].picture) && products[index].picture.length > 0) {
-//                console.log("read file");
-//                Product.readFile(products[index].picture[0], function (err, data) {
-//                    if (err) {
-//                        return res.send({success: false, message: util.inspect(err)});
-//                    }
-//                    console.log(data);
-//                    products[index].picture = data;
-//                });
-//            }
-//        }
         return res.send({success: true, datas: products});
     });
 });
 router.get('/images/:id', function (req, res) {
     
     var filename = req.params.id;
-    console.log(filename);
+//    console.log(filename);
     if (filename) {
-        Product.readFile(filename, function (err, data) {
-            console.log(err, data);
+        gridfsStore.readFile(filename, function (err, data) {
+//            console.log(err, data);
             res.writeHead(200, {"Content-Type": "image/png"});
 //            res.encoding('binary');
             if (err) {
