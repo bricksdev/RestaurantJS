@@ -14,6 +14,10 @@ Start the server commmand:  node cluster.js
 
 *执行node cluster.js或nodejs cluster.js
 
+*服务器端维持后台进程 需要安装npm forever
+执行forever start  cluster.js 
+
 ###** 注意安装nodejs后需要检查是否node即可执行，我本机安装后只能执行nodejs
 
 ####开发工具netbeans，可以创建HTML5项目，导入nodejs代码
+
