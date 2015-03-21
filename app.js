@@ -27,7 +27,7 @@ var allowCrossDomain = function (req, res, next) {
     // Added other domains you want the server to give access to
     // WARNING - Be careful with what origins you give access to
     var allowedHost = [
-        'http://szldkj.net',
+        'http://life.szldkj.net',
         'http://localhost',
         "file://"
     ];
@@ -41,12 +41,21 @@ var allowCrossDomain = function (req, res, next) {
         } else {
             res.send({auth: false});
         }
-    } else {
-        if (req.originalUrl.indexOf("/images") !== -1) {
-            //
+    } else if (req.headers.host) {
+        if (allowedHost.indexOf("http://"+req.headers.host) !== -1) {
+            res.header('Access-Control-Allow-Credentials', true);
+            //res.header('Access-Control-Allow-Origin', req.headers.host);
+            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+            res.header('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
             next();
+        } else {
+            res.send({auth: false});
         }
+    } else {
+        res.send("<html><body><h1>凌動創智歡迎您!</h1></body></html>");
+
     }
+
 
 };
 
@@ -70,7 +79,7 @@ app.use(session({
         db: settings.db
     }),
 //    maxAge: new Date(Date.now() + 3600000),
-    cookie: {path: "/",httpOnly:true}
+    cookie: {path: "/", httpOnly: true}
 }));
 app.use(allowCrossDomain);
 app.use(csrf.check);
@@ -107,7 +116,7 @@ if (app.get('env') === 'development') {
         errorLogfile.write(meta + err.stack + '\n');
         next();
         res.status(err.status || 500);
-        res.send( {success:false,
+        res.send({success: false,
             message: err.message,
             error: err
         });
@@ -121,7 +130,7 @@ app.use(function (err, req, res, next) {
     errorLogfile.write(meta + err.stack + '\n');
     next();
     res.status(err.status || 500);
-    res.send( {success:false,
+    res.send({success: false,
         message: err.message,
         error: err
     });
