@@ -26,11 +26,11 @@ app.set('view engine', 'jade');
 var allowCrossDomain = function (req, res, next) {
     // Added other domains you want the server to give access to
     // WARNING - Be careful with what origins you give access to
-    // 此处为了验证允许访问的IP及跨域的ip与域名，做好安全控制,localhost ip (10.9.68.45)
+    // 此处为了验证允许访问的IP及跨域的ip与域名，做好安全控制
     var allowedHost = [
         'http://life.szldkj.net',
-        'http://192.168.0.102',
-        'http://192.168.0.102:8099',
+        'http://10.9.68.45',
+	'http://10.9.68.45:8099',
         "file://"
     ];
     //console.log(req.headers);
@@ -49,16 +49,14 @@ var allowCrossDomain = function (req, res, next) {
             // 图片请求不设定其他响应头
             next();
         } else if (allowedHost.indexOf("http://" + req.headers.host) !== -1) {
-            // 此处修改只是限定手机APP才能运行进一步访问，否则只反馈欢迎信息，便于验证服务器是否正常运行
-            if (req.headers["x-requested-with"]) {
-                res.header('Access-Control-Allow-Credentials', true);
-                //res.header('Access-Control-Allow-Origin', req.headers.host);
-                res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-                res.header('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-                next();
-            } else {
-                res.send("<html><body><h1>凌動創智歡迎您!</h1></body></html>");
-            }
+		// 此处修改只是限定手机APP才能运行进一步访问，否则只反馈欢迎信息，便于验证服务器是否正常运行
+	    if(req.headers["x-requested-with"]){
+            res.header('Access-Control-Allow-Credentials', true);
+            //res.header('Access-Control-Allow-Origin', req.headers.host);
+            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+            res.header('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+            next();}else{res.send("<html><body><h1>凌動創智歡迎您!</h1></body></html>");
+		}
         } else {
             res.send({auth: false});
         }
